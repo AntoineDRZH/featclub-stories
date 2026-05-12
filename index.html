@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stories Feat Club — Apercu v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root { --o: #E8541A; --v: #2A8C7E; --n: #0A0A0A; --b: #F5F0EB; --g: #1C1C1C; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111; color: #F5F0EB; font-family: 'DM Sans', sans-serif; padding: 24px 20px 60px; }
+
+    .header { margin-bottom: 28px; }
+    .header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 3px; }
+    .header h1 span { color: #E8541A; }
+    .header p { font-size: 12px; color: rgba(245,240,235,0.4); letter-spacing: 1px; margin-top: 4px; }
+
+    .stories-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 28px; }
+    .story-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+    .phone {
+      width: 130px; aspect-ratio: 9/16;
+      border-radius: 18px; overflow: hidden;
+      border: 2px solid #2A2A2A;
+      cursor: pointer; transition: all 0.2s;
+      position: relative;
+    }
+    .phone:hover { transform: scale(1.04); border-color: rgba(232,84,26,0.5); }
+    .phone.selected { border-color: #E8541A; transform: scale(1.05); box-shadow: 0 8px 24px rgba(232,84,26,0.25); }
+
+    .phone-inner { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 10px 9px; position: relative; z-index: 2; }
+    .pbar { display: flex; gap: 2px; margin-bottom: 5px; }
+    .pseg { height: 2px; flex: 1; border-radius: 2px; background: rgba(255,255,255,0.3); }
+    .pseg.on { background: #fff; }
+    .puser { display: flex; align-items: center; gap: 4px; margin-bottom: 7px; }
+    .pavatar { width: 16px; height: 16px; border-radius: 50%; background: #E8541A; display: flex; align-items: center; justify-content: center; font-size: 6px; font-weight: 700; color: #fff; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.4); }
+    .pname { font-size: 7px; font-weight: 500; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .pcontent { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+    /* PHOTO BG SIMULATION */
+    .photo-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+    }
+    .overlay { position: absolute; inset: 0; z-index: 1; }
+
+    .day-name { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(245,240,235,0.6); font-weight: 500; }
+    .day-type { font-size: 9px; color: rgba(245,240,235,0.35); }
+
+    /* DETAIL PANEL */
+    .detail { background: #1C1C1C; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+    .detail-head { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .detail-tag { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #E8541A; margin-bottom: 3px; }
+    .detail-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px 18px; }
+    @media(max-width:600px) { .detail-grid { grid-template-columns: 1fr; } }
+    .dlabel { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+    .dcontent { font-size: 12px; color: rgba(245,240,235,0.75); line-height: 1.65; padding: 9px 11px; background: rgba(255,255,255,0.04); border-radius: 6px; }
+    .dfull { grid-column: 1/-1; }
+    .copy-btn { margin: 0 18px 18px; display: block; padding: 10px; background: #E8541A; color: #fff; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; text-align: center; }
+    .copy-btn:hover { background: #d44a14; }
+    .copy-btn.copied { background: #2A8C7E; }
+
+    /* NOTE PHOTO */
+    .note-photo {
+      display: inline-block; margin-bottom: 28px;
+      padding: 10px 16px; background: rgba(232,84,26,0.12);
+      border: 1px solid rgba(232,84,26,0.25); border-radius: 6px;
+      font-size: 12px; color: rgba(245,240,235,0.7); line-height: 1.5;
+    }
+    .note-photo strong { color: #E8541A; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>STORIES <span>FEAT CLUB</span></h1>
+  <p>Clique sur une story pour voir la structure complete</p>
+</div>
+
+<div class="note-photo">
+  <strong>Note :</strong> Les fonds simulent l'effet final. En vrai, ton ami remplace le fond par ses propres photos et videos de la salle.
+</div>
+
+<div class="stories-row">
+
+  <!-- LUNDI — Photo salle en fond, overlay sombre, tip orange -->
+  <div class="story-wrap">
+    <div class="phone selected" onclick="show('lundi')" id="p-lundi">
+      <!-- Simule une photo de salle de sport -->
+      <div class="photo-bg" style="background: linear-gradient(160deg, #2C1810 0%, #1A0E0A 40%, #0D1A18 100%);"></div>
+      <div class="overlay" style="background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.55) 100%);"></div>
+      <div class="phone-inner">
+        <div class="pbar"><div class="pseg on"></div><div class="pseg"></div><div class="pseg"></div></div>
+        <div class="puser"><div class="pavatar">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent">
+          <!-- Tag vert -->
+          <div style="display:inline-block;padding:2px 6px;background:rgba(42,140,126,0.85);border-radius:3px;font-size:5px;letter-spacing:2px;text-transform:uppercase;color:#fff;font-weight:600;margin-bottom:7px">TIP DU LUNDI</div>
+          <!-- Titre Bebas Neue -->
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:#F5F0EB;line-height:1.1;margin-bottom:6px">TU RESPIRES <span style="color:#E8541A">MAL</span> PENDANT TES SERIES</div>
+          <!-- Divider orange -->
+          <div style="width:20px;height:2px;background:#E8541A;margin-bottom:6px;border-radius:2px"></div>
+          <!-- Corps -->
+          <div style="font-size:6px;color:rgba(245,240,235,0.85);line-height:1.6">Expire a l'effort. Inspire au retour. Toujours. C'est la base.</div>
+        </div>
+        <!-- Logo bas -->
+        <div style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:6px;letter-spacing:2px;color:rgba(245,240,235,0.4)">@FEATCLUB.FR</div>
+      </div>
+    </div>
+    <div class="day-name">Lundi</div>
+    <div class="day-type">Conseil</div>
+  </div>
+
+  <!-- MARDI — Video salle en fond, overlay vert fonce, texte blanc -->
+  <div class="story-wrap">
+    <div class="phone" onclick="show('mardi')" id="p-mardi">
+      <!-- Simule une video de salle -->
+      <div class="photo-bg" style="background: linear-gradient(160deg, #0D2820 0%, #071510 50%, #0A0A0A 100%);"></div>
+      <div class="overlay" style="background: rgba(0,0,0,0.45);"></div>
+      <!-- Barre gradient en haut -->
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2A8C7E,#E8541A);z-index:3"></div>
+      <div class="phone-inner">
+        <div class="pbar"><div class="pseg on"></div><div class="pseg"></div><div class="pseg"></div></div>
+        <div class="puser"><div class="pavatar" style="background:#2A8C7E">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent" style="align-items:flex-start">
+          <!-- Badge -->
+          <div style="display:inline-block;padding:2px 6px;background:rgba(42,140,126,0.7);border:1px solid rgba(42,140,126,0.9);border-radius:3px;font-size:5px;letter-spacing:1px;text-transform:uppercase;color:#fff;margin-bottom:8px">VIDEO COULISSES</div>
+          <!-- Titre grand -->
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:#F5F0EB;line-height:1.1;margin-bottom:6px">LE CALME<br>AVANT LA<br>TEMPETE</div>
+          <!-- Sous-titre -->
+          <div style="font-size:6px;color:rgba(245,240,235,0.5);letter-spacing:2px;text-transform:uppercase">6H30 · FEAT CLUB</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-name">Mardi</div>
+    <div class="day-type">Coulisses</div>
+  </div>
+
+  <!-- MERCREDI — Fond orange chaleureux, sondage -->
+  <div class="story-wrap">
+    <div class="phone" onclick="show('mercredi')" id="p-mercredi">
+      <div class="photo-bg" style="background: linear-gradient(160deg, #E8541A, #BF3D0A);"></div>
+      <!-- Cercles decoratifs -->
+      <div style="position:absolute;bottom:-25px;right:-25px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.08);z-index:1"></div>
+      <div style="position:absolute;top:-20px;left:-20px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.06);z-index:1"></div>
+      <div class="phone-inner">
+        <div class="pbar"><div class="pseg on" style="background:rgba(255,255,255,0.7)"></div><div class="pseg" style="background:rgba(255,255,255,0.35)"></div><div class="pseg" style="background:rgba(255,255,255,0.35)"></div></div>
+        <div class="puser"><div class="pavatar" style="background:#fff;color:#E8541A">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent" style="position:relative;z-index:2">
+          <div style="font-size:5px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:6px">HONNÊTEMENT...</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:#F5F0EB;line-height:1.2;margin-bottom:11px">TU T'ENTRAINES COMBIEN DE FOIS PAR SEMAINE ?</div>
+          <div style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);border-radius:4px;padding:5px 7px;font-size:7px;color:#fff;font-weight:600;text-align:center;margin-bottom:4px">1 - 2 fois</div>
+          <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:5px 7px;font-size:7px;color:#fff;font-weight:600;text-align:center">3 fois et +</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-name">Mercredi</div>
+    <div class="day-type">Sondage</div>
+  </div>
+
+  <!-- JEUDI — Photo ambiance en fond, citation forte -->
+  <div class="story-wrap">
+    <div class="phone" onclick="show('jeudi')" id="p-jeudi">
+      <!-- Simule photo d'ambiance salle -->
+      <div class="photo-bg" style="background: linear-gradient(160deg, #1C1008, #100A04, #0A0A0A);"></div>
+      <div class="overlay" style="background: rgba(0,0,0,0.6);"></div>
+      <!-- Barre orange verticale gauche -->
+      <div style="position:absolute;left:0;top:20%;bottom:20%;width:3px;background:linear-gradient(to bottom,#E8541A,#2A8C7E);z-index:3;border-radius:0 2px 2px 0"></div>
+      <div class="phone-inner" style="padding-left:13px">
+        <div class="pbar"><div class="pseg on"></div><div class="pseg"></div><div class="pseg"></div></div>
+        <div class="puser"><div class="pavatar">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent">
+          <!-- Grand guillemet -->
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:rgba(232,84,26,0.35);line-height:1">"</div>
+          <!-- Citation -->
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:#F5F0EB;line-height:1.2;margin-bottom:8px">LES RESULTATS NE MENTENT PAS. <span style="color:#E8541A">L'EXCUSE</span> OUI.</div>
+          <!-- Auteur -->
+          <div style="font-size:6px;letter-spacing:2px;text-transform:uppercase;color:#2A8C7E">— Feat Club · Back to Basics</div>
+        </div>
+        <!-- Watermark -->
+        <div style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:6px;letter-spacing:3px;color:rgba(245,240,235,0.1)">FEATNESS NOT FITNESS</div>
+      </div>
+    </div>
+    <div class="day-name">Jeudi</div>
+    <div class="day-type">Citation</div>
+  </div>
+
+  <!-- VENDREDI — Photo + overlay orange fort, promo urgence -->
+  <div class="story-wrap">
+    <div class="phone" onclick="show('vendredi')" id="p-vendredi">
+      <!-- Simule photo action -->
+      <div class="photo-bg" style="background: linear-gradient(160deg, #1A0A04, #100604, #0A0A0A);"></div>
+      <!-- Moitie haute orange -->
+      <div style="position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(135deg,#E8541A,#BF3D0A);z-index:1"></div>
+      <div class="phone-inner">
+        <div class="pbar" style="position:relative;z-index:3"><div class="pseg on" style="background:rgba(255,255,255,0.7)"></div><div class="pseg" style="background:rgba(255,255,255,0.35)"></div><div class="pseg" style="background:rgba(255,255,255,0.35)"></div></div>
+        <div class="puser" style="position:relative;z-index:3"><div class="pavatar" style="background:#fff;color:#E8541A">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent" style="position:relative;z-index:3">
+          <div style="font-size:5px;letter-spacing:2px;text-transform:uppercase;color:rgba(245,240,235,0.9);margin-bottom:2px">IL RESTE</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:38px;color:#F5F0EB;line-height:1">3</div>
+          <div style="font-size:6px;color:rgba(245,240,235,0.85);margin-bottom:10px">Places · Personal Training</div>
+          <div style="font-size:6px;color:rgba(245,240,235,0.75);line-height:2">Coach dedie<br>Programme sur mesure<br>1ere seance offerte</div>
+          <div style="margin-top:10px;background:#F5F0EB;color:#E8541A;padding:4px 10px;border-radius:3px;font-size:6px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:inline-block">RESERVER →</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-name">Vendredi</div>
+    <div class="day-type">Promo</div>
+  </div>
+
+  <!-- SAMEDI — Photo groupe en fond, communaute chaleureuse -->
+  <div class="story-wrap">
+    <div class="phone" onclick="show('samedi')" id="p-samedi">
+      <!-- Simule photo groupe -->
+      <div class="photo-bg" style="background: linear-gradient(160deg, #0D2820, #071510, #0A0A0A);"></div>
+      <div class="overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%);"></div>
+      <!-- Barre gradient bas -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2A8C7E,#E8541A);z-index:3"></div>
+      <div class="phone-inner">
+        <div class="pbar"><div class="pseg on"></div><div class="pseg"></div><div class="pseg"></div></div>
+        <div class="puser"><div class="pavatar" style="background:#2A8C7E">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent" style="justify-content:flex-end;align-items:center;text-align:center">
+          <!-- Avatars membres -->
+          <div style="display:flex;justify-content:center;margin-bottom:6px">
+            <div style="width:16px;height:16px;border-radius:50%;background:#E8541A;border:1.5px solid rgba(42,140,126,0.6);display:flex;align-items:center;justify-content:center;font-size:6px;color:#fff;font-weight:600">A</div>
+            <div style="width:16px;height:16px;border-radius:50%;background:#2A8C7E;border:1.5px solid #0A0A0A;display:flex;align-items:center;justify-content:center;font-size:6px;color:#fff;font-weight:600;margin-left:-4px">L</div>
+            <div style="width:16px;height:16px;border-radius:50%;background:#555;border:1.5px solid #0A0A0A;display:flex;align-items:center;justify-content:center;font-size:6px;color:#fff;font-weight:600;margin-left:-4px">M</div>
+            <div style="width:16px;height:16px;border-radius:50%;background:#333;border:1.5px solid #0A0A0A;display:flex;align-items:center;justify-content:center;font-size:5px;color:#fff;margin-left:-4px">+4</div>
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:#F5F0EB;line-height:1.2;margin-bottom:5px">LA FAMILLE<br>FEAT CLUB</div>
+          <div style="font-size:5px;color:#2A8C7E;letter-spacing:1px;text-transform:uppercase;font-weight:600">APRES CROSS · SAMEDI 9H</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-name">Samedi</div>
+    <div class="day-type">Communaute</div>
+  </div>
+
+  <!-- DIMANCHE — Photo salle calme en fond, recap chiffres -->
+  <div class="story-wrap">
+    <div class="phone" onclick="show('dimanche')" id="p-dimanche">
+      <!-- Simule photo salle calme -->
+      <div class="photo-bg" style="background: linear-gradient(160deg, #1A1408, #100E04, #0A0A0A);"></div>
+      <div class="overlay" style="background: rgba(0,0,0,0.65);"></div>
+      <!-- Ligne gradient haut -->
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#E8541A,#2A8C7E,#E8541A);z-index:3"></div>
+      <div class="phone-inner">
+        <div class="pbar"><div class="pseg on"></div><div class="pseg"></div><div class="pseg"></div></div>
+        <div class="puser"><div class="pavatar">FC</div><span class="pname">featclub.fr</span></div>
+        <div class="pcontent">
+          <div style="font-size:5px;letter-spacing:3px;text-transform:uppercase;color:#E8541A;margin-bottom:8px;font-weight:600">CETTE SEMAINE</div>
+          <!-- Stats -->
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#E8541A;line-height:1;min-width:34px">47</div>
+            <div style="font-size:5px;color:rgba(245,240,235,0.6);text-transform:uppercase;letter-spacing:1px;line-height:1.4">SEANCES<br>DISPENSEES</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#E8541A;line-height:1;min-width:34px">3</div>
+            <div style="font-size:5px;color:rgba(245,240,235,0.6);text-transform:uppercase;letter-spacing:1px;line-height:1.4">NOUVEAUX<br>MEMBRES</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#E8541A;line-height:1;min-width:34px">1</div>
+            <div style="font-size:5px;color:rgba(245,240,235,0.6);text-transform:uppercase;letter-spacing:1px;line-height:1.4">RECORD<br>PERSONNEL</div>
+          </div>
+          <!-- Divider gradient -->
+          <div style="height:1px;background:linear-gradient(90deg,#E8541A,transparent);margin-bottom:6px"></div>
+          <!-- Teaser -->
+          <div style="font-size:5.5px;color:rgba(245,240,235,0.5);letter-spacing:1px">Semaine prochaine → <span style="color:#2A8C7E;font-weight:600">Nouveau Cross Training</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="day-name">Dimanche</div>
+    <div class="day-type">Recap</div>
+  </div>
+
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail" id="detail"></div>
+
+<script>
+const data = {
+  lundi: {
+    tag: "LUNDI · CONSEIL", title: "TIP SPORTIF DE LA SEMAINE",
+    structure: "Photo de la salle en fond (barres, equipements, ambiance)\nOverlay sombre 50% pour lisibilite\nTag vert en haut : 'TIP DU LUNDI'\nTitre Bebas Neue blanc - mot cle en orange\nLigne orange 20px comme separateur\nCorps DM Sans Light\n@featclub.fr centre en bas",
+    exemple: "TIP DU LUNDI\n\nTU RESPIRES MAL PENDANT TES SERIES\n\nExpire a l'effort. Inspire au retour. Toujours. C'est la base qui fait la difference entre une serie efficace et une serie risquee.\n\n@featclub.fr",
+    canva: "Photo importee en fond · Rectangle sombre en overlay 50% · Texte Bebas Neue blanc par-dessus · Tag vert · Export PNG 1080x1920"
+  },
+  mardi: {
+    tag: "MARDI · COULISSES", title: "BEHIND THE SCENES",
+    structure: "Video brute filmee au telephone (15-30 sec)\nOverlay sombre leger pour le texte\nBarre gradient orange/vert en haut\nBadge 'VIDEO COULISSES' en vert\nTitre Bebas Neue grand en blanc\nSous-titre discret heure + lieu",
+    exemple: "Video : Salle a 6h30. Lumieres qui s'allument. Barres posees au sol.\n\nBadge vert : 'VIDEO COULISSES'\n\nTitre overlay : 'LE CALME AVANT LA TEMPETE'\n\nSous-titre : '6H30 · FEAT CLUB'",
+    canva: "Importer video · Overlay sombre leger · Texte Bebas Neue en blanc · Badge vert en haut gauche · Export MP4"
+  },
+  mercredi: {
+    tag: "MERCREDI · INTERACTIF", title: "SONDAGE COMMUNAUTE",
+    structure: "Fond orange degrade sans photo\nCercles decoratifs transparents\nQuestion Bebas Neue blanc\nWidget sondage natif Instagram\nResultats partages le lendemain",
+    exemple: "HONNÊTEMENT...\n\nTU T'ENTRAINES COMBIEN DE FOIS PAR SEMAINE ?\n\nOption A : 1-2 fois\nOption B : 3 fois et +\n\n[Story suivante J+1 : resultats + conseil]",
+    canva: "Fond orange dans Canva · Cercles decoratifs transparents · Texte Bebas Neue blanc · Publier et ajouter widget sondage Instagram"
+  },
+  jeudi: {
+    tag: "JEUDI · MOTIVATION", title: "CITATION MINDSET",
+    structure: "Photo ambiance salle en fond (noir et blanc ou degrade)\nOverlay sombre 60%\nBarre verticale gradient orange/vert a gauche\nGrand guillemet orange transparent\nCitation Bebas Neue blanc - mot cle en orange\nAuteur DM Sans vert",
+    exemple: '"LES RESULTATS NE MENTENT PAS. L\'EXCUSE OUI."\n\n— Feat Club · Back to Basics',
+    canva: "Photo fond · Overlay 60% · Rectangle 3px gradient gauche · Guillemet geant transparent · Citation grande · Signature bas"
+  },
+  vendredi: {
+    tag: "VENDREDI · PROMO", title: "OFFRE / ANNONCE HEBDO",
+    structure: "Photo action en fond\nMoitie haute orange degrade\nGrand chiffre Bebas Neue en blanc (ex: 3 PLACES)\nListe avantages sur fond sombre\nBouton CTA blanc/orange en bas\nUrgence et rarete visibles",
+    exemple: "IL RESTE\n3 PLACES\n\nPersonal Training · Semaine du 16 juin\n\nCoach dedie\nProgramme sur mesure\n1ere seance offerte\n\n[Bouton] RESERVER →\n\nDM 'PLACE' pour confirmer",
+    canva: "Photo fond · Rectangle orange degrade haut 42% · Chiffre tres grand · CTA blanc en bas · Export PNG"
+  },
+  samedi: {
+    tag: "SAMEDI · COMMUNAUTE", title: "FEAT FAMILY",
+    structure: "Photo du groupe apres seance en fond\nOverlay degrade bas (transparent vers noir)\nBarre gradient vert/orange en bas\nAvatars membres\nTitre Bebas Neue 'LA FAMILLE FEAT CLUB'\nTaguer les membres presents",
+    exemple: "Photo naturelle du groupe apres Cross Training.\n\nTitre overlay : 'LA FAMILLE FEAT CLUB'\n\nSous-titre : 'APRES CROSS · SAMEDI 9H'\n\nTaguer les membres dans Instagram.",
+    canva: "Photo fond · Overlay degrade bas · Avatars cercles en haut · Texte en bas sur partie sombre · Taguer apres publication"
+  },
+  dimanche: {
+    tag: "DIMANCHE · RECAP", title: "BILAN + TEASER SEMAINE",
+    structure: "Photo salle calme en fond\nOverlay sombre 65%\nLigne gradient orange/vert en haut\n3 stats Bebas Neue orange\nDivider gradient\nTeaser semaine suivante en vert",
+    exemple: "CETTE SEMAINE :\n\n47 SEANCES DISPENSEES\n3 NOUVEAUX MEMBRES\n1 RECORD PERSONNEL\n\n---\n\nSemaine prochaine → Nouveau programme Cross Training\n\n@featclub.fr",
+    canva: "Photo fond · Overlay 65% · Stats empilees · Divider gradient · Section teaser vert · Logo bas"
+  }
+};
+
+function show(day) {
+  document.querySelectorAll('.phone').forEach(p => p.classList.remove('selected'));
+  document.getElementById('p-' + day).classList.add('selected');
+  const d = data[day];
+  document.getElementById('detail').innerHTML = `
+    <div class="detail-head">
+      <div class="detail-tag">${d.tag}</div>
+      <div class="detail-title">${d.title}</div>
+    </div>
+    <div class="detail-grid">
+      <div>
+        <div class="dlabel" style="color:#2A8C7E">Structure visuelle</div>
+        <div class="dcontent">${d.structure.replace(/\n/g,'<br>')}</div>
+      </div>
+      <div>
+        <div class="dlabel" style="color:#E8541A">Exemple concret</div>
+        <div class="dcontent">${d.exemple.replace(/\n/g,'<br>')}</div>
+      </div>
+      <div class="dfull">
+        <div class="dlabel" style="color:#7E22CE">Instructions Canva</div>
+        <div class="dcontent">${d.canva}</div>
+      </div>
+    </div>
+    <button class="copy-btn" onclick="cp('${day}')">Copier l'exemple</button>
+  `;
+}
+
+function cp(day) {
+  navigator.clipboard.writeText(data[day].exemple);
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'Copie !'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = "Copier l'exemple"; btn.classList.remove('copied'); }, 2000);
+}
+
+show('lundi');
+</script>
+</body>
+</html>
